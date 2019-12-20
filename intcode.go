@@ -33,6 +33,32 @@ func (c *Computer) RunProgram() {
 		case 4:
 			c.Output = c.Instructions[arg1]
 			c.PC +=2
+		case 5:
+			if c.Instructions[arg1] != 0 {
+				c.PC = c.Instructions[arg2]
+			} else {
+				c.PC += 3
+			}
+		case 6:
+			if c.Instructions[arg1] == 0 {
+				c.PC = c.Instructions[arg2]
+			} else {
+				c.PC += 3
+			}
+		case 7:
+			if c.Instructions[arg1] < c.Instructions[arg2] {
+				c.Instructions[arg3] = 1
+			} else {
+				c.Instructions[arg3] = 0
+			}
+			c.PC += 4
+		case 8:
+			if c.Instructions[arg1] == c.Instructions[arg2] {
+				c.Instructions[arg3] = 1
+			} else {
+				c.Instructions[arg3] = 0
+			}
+			c.PC += 4
 		case 99:
 			return
 		default:
@@ -59,14 +85,23 @@ func (c *Computer) parseOpcode(instruction int) (int, int, int, int) {
 		instructionString = instructionString[:len(instructionString) - 2]
 	}
 
-	//Set the arguments to the default
-	arg1 = c.Instructions[c.PC+1]
-	arg2 = c.Instructions[c.PC+2]
-	arg3 = c.Instructions[c.PC+3]
+	//Set the arguments to the defaultopode
+
+	//99 Doens't have any arguments
+	if opcode != 99 {
+		arg1 = c.Instructions[c.PC+1]
+		//9 only has 1 argument
+		if opcode != 9 {
+			arg2 = c.Instructions[c.PC+2]
+			//3 and 4 only have 2 arguments
+			if !inSlice([]int{3,4}, opcode) {
+				arg3 = c.Instructions[c.PC+3]
+			}
+		}
+	}
 
 	//Get modes for each argument and assign index accordingly
 	//Arg 3 mode
-
 	if len(instructionString) == 3 {
 		mode, _ := strconv.Atoi(string(instructionString[0]))
 		if mode == 1 {
@@ -98,4 +133,14 @@ func (c *Computer) parseOpcode(instruction int) (int, int, int, int) {
 	}
 
 	return opcode, arg1, arg2, arg3
+}
+
+func inSlice(slice []int, value int) bool {
+
+	for _, v := range slice {
+		if value == v {
+			return true
+		}
+	}
+	return false
 }
