@@ -2,6 +2,7 @@ package intcode
 
 import (
 	"fmt"
+	"strconv"
 )
 
 type Computer struct {
@@ -12,8 +13,9 @@ type Computer struct {
 func (c *Computer) RunProgram() {
 
 	for {
-		opcode := c.Instructions[c.PC]
-		arg1, arg2, arg3 := c.parseOpcode(opcode)
+		instruction := c.Instructions[c.PC]
+		opcode, arg1, arg2, arg3 := c.parseOpcode(instruction)
+
 		switch opcode {
 		case 1:
 			c.Instructions[arg3] = c.Instructions[arg1] + c.Instructions[arg2]
@@ -40,7 +42,60 @@ func (c *Computer) RunProgram() {
 	}
 }
 
-func (c *Computer) parseOpcode(opcode int) (int, int, int) {
+func (c *Computer) parseOpcode(instruction int) (int, int, int, int) {
 
-	return c.Instructions[c.PC+1], c.Instructions[c.PC+2], c.Instructions[c.PC+3]
+	var opcode, arg1, arg2, arg3 int
+
+	//Cast instruction to string for easier parsing
+	instructionString := strconv.Itoa(instruction)
+	//Get the opcode out of the instruction
+	if len(instructionString) < 2 {
+		//Handle case that opcode is only a single digit
+		opcode = instruction
+		instructionString = ""
+	} else {
+		//Extract opcode from instruction and remove it from string
+		opcode, _ = strconv.Atoi(instructionString[len(instructionString) - 2:])
+		instructionString = instructionString[:len(instructionString) - 2]
+	}
+
+	//Set the arguments to the default
+	arg1 = c.Instructions[c.PC+1]
+	arg2 = c.Instructions[c.PC+2]
+	arg3 = c.Instructions[c.PC+3]
+
+	//Get modes for each argument and assign index accordingly
+	//Arg 3 mode
+
+	if len(instructionString) == 3 {
+		mode, _ := strconv.Atoi(string(instructionString[0]))
+		if mode == 1 {
+			arg3 = c.PC + 3
+		} else if mode == 2 {
+
+		}
+		instructionString = instructionString[1:]
+	}
+	//Arg 2 mode
+	if len(instructionString) == 2 {
+		mode, _ := strconv.Atoi(string(instructionString[0]))
+		if mode == 1 {
+			arg2 = c.PC + 2
+		} else if mode == 2 {
+
+		}
+		instructionString = instructionString[1:]
+	}
+	//Arg 1 mode
+	if len(instructionString) == 1 {
+		mode, _ := strconv.Atoi(string(instructionString[0]))
+		if mode == 1 {
+			arg1 = c.PC + 1
+		} else if mode == 2 {
+
+		}
+		instructionString = instructionString[1:]
+	}
+
+	return opcode, arg1, arg2, arg3
 }
