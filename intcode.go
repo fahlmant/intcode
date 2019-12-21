@@ -94,12 +94,10 @@ func (c *Computer) parseOpcode(instruction int) (int, int, int, int) {
 	if opcode != 99 {
 		arg1 = c.Instructions[c.PC+1]
 		//9 only has 1 argument
-		if opcode != 9 {
+		if !inSlice([]int{3, 4, 9}, opcode) {
 			arg2 = c.Instructions[c.PC+2]
 			//3 and 4 only have 2 arguments
-			if !inSlice([]int{3, 4}, opcode) {
-				arg3 = c.Instructions[c.PC+3]
-			}
+			arg3 = c.Instructions[c.PC+3]
 		}
 	}
 
